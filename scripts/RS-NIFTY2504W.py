@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 # ─────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────
-file_path   = r'C:\Users\APMC\Pythen\StockList\micro250list.csv'
+file_path   = StockList/micro250list.csv
 INTER_DELAY = 0.5   # seconds between tickers
 
 # ─────────────────────────────────────────────
