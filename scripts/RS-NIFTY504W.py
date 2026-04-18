@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 # ─────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────
-file_path   = r'C:\Users\APMC\Pythen\StockList\nifty50list.csv'
+file_path   = StockList/nifty50list.csv
 INTER_DELAY = 0.5   # seconds between tickers
 
 # ─────────────────────────────────────────────
