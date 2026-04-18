@@ -4,17 +4,21 @@ on:
   schedule:
     # 03:30 UTC = 09:00 AM IST every Saturday
     - cron: '30 3 * * 6'
-  workflow_dispatch: # Allows you to run it manually to test
+  workflow_dispatch:
+
+# Force the runner to use Node.js 24 for all actions in this workflow
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to push to gh-pages branch
+      contents: write
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4 # This will now run on Node 24 due to the env var
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -34,7 +38,7 @@ jobs:
 
     - name: Update Timestamp in HTML
       run: |
-        # Replaces the placeholder in your HTML with current IST time
+        # Calculate IST (UTC + 5:30)
         export CURRENT_TIME=$(date -u -d "+5 hours 30 minutes" +"%Y-%m-%d %H:%M IST")
         sed -i "s/LAST_UPDATED (UTC)/$CURRENT_TIME/g" index.html
 
