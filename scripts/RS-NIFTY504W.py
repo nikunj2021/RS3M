@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 # ─────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────
-file_path   = file_path = './StockList/nifty50list.csv'
+file_path   = file_path = "StockList/nifty50list.csv"
 INTER_DELAY = 0.5   # seconds between tickers
 
 # ─────────────────────────────────────────────
@@ -210,9 +210,9 @@ df_breadth    = pd.DataFrame(breadth_data)
 # ─────────────────────────────────────────────
 # 9. EXPORT — XlsxWriter formatting
 # ─────────────────────────────────────────────
-base_name   = 'NSE_50_Perception_Report'
-output_dir  = Report
-base_name   = 'NSE_50_Perception_Report'
+base_name   = "NSE_50_Perception_Report"
+output_dir  = "Report/RS Report"
+base_name   = "NSE_50_Perception_Report"
 output_file = os.path.join(output_dir, f'{base_name}.xlsx')
 os.makedirs(output_dir, exist_ok=True)
 counter = 1
