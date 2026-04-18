@@ -1,0 +1,45 @@
+name: Weekly NSE Market Report
+
+on:
+  schedule:
+    # Runs at 03:30 UTC (9:00 AM IST) every Saturday
+    - cron: '30 3 * * 6'
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-numeric: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        pip install yfinance pandas xlsxwriter
+
+    - name: Run Reports
+      run: |
+        # Create output directory
+        mkdir -p Report/RSReport
+        # Run your three scripts
+        python RS-NIFTY504W.py
+        python RS-NIFTY2504W.py
+        python RS-NIFTY5004W.py
+
+    - name: Update Index File
+      run: |
+        # Optional: Add timestamp to index.html to show when it last ran
+        sed -i "s/LAST_UPDATED/$(date -u)/g" index.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
