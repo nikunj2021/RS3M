@@ -18,23 +18,16 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Debug Pathing
-      run: |
-        echo "Current Directory Structure:"
-        ls -R
-
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Install Dependencies
-      run: |
-        pip install yfinance pandas xlsxwriter
+      run: pip install --upgrade yfinance pandas xlsxwriter requests
 
     - name: Run Market Scripts
       run: |
-        # Ensure the output directory exists before running
         mkdir -p Report/RSReport
         python RS-NIFTY504W.py
         python RS-NIFTY2504W.py
@@ -42,11 +35,11 @@ jobs:
 
     - name: Update Timestamp in HTML
       run: |
-        export CURRENT_TIME=$(date -u -d "+5 hours 30 minutes" +"%Y-%m-%d %H:%M IST")
+        CURRENT_TIME=$(TZ="Asia/Kolkata" date +"%Y-%m-%d %H:%M IST")
         sed -i "s/LAST_UPDATED (UTC)/$CURRENT_TIME/g" index.html
 
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4   # ← was v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
