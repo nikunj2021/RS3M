@@ -2,11 +2,9 @@ name: Weekly NSE Market Report
 
 on:
   schedule:
-    # 03:30 UTC = 09:00 AM IST every Saturday
     - cron: '30 3 * * 6'
   workflow_dispatch:
 
-# Force the runner to use Node.js 24 for all actions in this workflow
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -18,7 +16,12 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4 # This will now run on Node 24 due to the env var
+      uses: actions/checkout@v4
+
+    - name: Debug Pathing
+      run: |
+        echo "Current Directory Structure:"
+        ls -R
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -31,6 +34,7 @@ jobs:
 
     - name: Run Market Scripts
       run: |
+        # Ensure the output directory exists before running
         mkdir -p Report/RSReport
         python RS-NIFTY504W.py
         python RS-NIFTY2504W.py
@@ -38,7 +42,6 @@ jobs:
 
     - name: Update Timestamp in HTML
       run: |
-        # Calculate IST (UTC + 5:30)
         export CURRENT_TIME=$(date -u -d "+5 hours 30 minutes" +"%Y-%m-%d %H:%M IST")
         sed -i "s/LAST_UPDATED (UTC)/$CURRENT_TIME/g" index.html
 
