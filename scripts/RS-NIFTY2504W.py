@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 # ─────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────
-file_path = './StockList/nifty50list.csv'
+file_path = './StockList/micro250list.csv'
 INTER_DELAY = 0.5   # seconds between tickers
 
 # ─────────────────────────────────────────────
