@@ -211,7 +211,7 @@ df_breadth    = pd.DataFrame(breadth_data)
 # 9. EXPORT — XlsxWriter formatting
 # ─────────────────────────────────────────────
 base_name   = 'NSE_250_Perception_Report'
-output_dir  = Report
+output_dir  = 'Report/RS Report'
 base_name   = 'NSE_250_Perception_Report'
 output_file = os.path.join(output_dir, f'{base_name}.xlsx')
 os.makedirs(output_dir, exist_ok=True)
