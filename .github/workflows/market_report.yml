@@ -2,7 +2,7 @@ name: Weekly NSE Market Report
 
 on:
   schedule:
-    - cron: '30 3 * * 6'
+    - cron: '37 2 * * 6'
   workflow_dispatch:
 
 env:
