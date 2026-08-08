@@ -311,6 +311,7 @@ print(f"   Recent 2-wk RS>=80: {len(df_recent)}")
 
 # ─────────────────────────────────────────────
 # ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
 # 10. UPDATE EXISTING GOOGLE DRIVE FILE
 # ─────────────────────────────────────────────
 def update_drive_file(local_path, file_id):
@@ -324,7 +325,8 @@ def update_drive_file(local_path, file_id):
         creds_dict = json.loads(creds_json_str)
         creds = service_account.Credentials.from_service_account_info(
             creds_dict, 
-            scopes=['https://www.googleapis.com/auth/drive.file']
+            # 1. CHANGED SCOPE: Removed '.file' to allow the bot to see files you created
+            scopes=['https://www.googleapis.com/auth/drive']
         )
         
         # Build Drive Service
@@ -339,10 +341,11 @@ def update_drive_file(local_path, file_id):
 
         print(f"\nUpdating existing file on Google Drive (ID: {file_id})...")
         
-        # Directly update the file by its ID
+        # 2. ADDED 'supportsAllDrives=True' to ensure it works across all folder types
         service.files().update(
             fileId=file_id,
-            media_body=media
+            media_body=media,
+            supportsAllDrives=True
         ).execute()
         
         print(f"✅ Successfully updated the file on Google Drive!")
