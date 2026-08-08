@@ -68,7 +68,7 @@ tickers     = list(dict.fromkeys(tickers))
 # ─────────────────────────────────────────────
 IST = ZoneInfo("Asia/Kolkata")
 
-USE_BACK_DATE = True  
+USE_BACK_DATE = False  
 BACK_DATE_STR = "2026-07-18 16:00" 
 
 if USE_BACK_DATE:
