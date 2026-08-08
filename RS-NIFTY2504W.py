@@ -22,7 +22,7 @@ file_path   = "StockList/micro250list.csv"
 INTER_DELAY = 0.5   # seconds between tickers
 
 # GOOGLE DRIVE CONFIGURATION
-# Replace this with the ID of the folder where you want the Excel files saved
+# Replace this with the DRIVE_FILE_ID of the file
 DRIVE_FILE_ID = "1si998YOD2LryRwZmUwgvVtK_wjtqfoO5"
 
 # ─────────────────────────────────────────────
