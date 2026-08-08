@@ -23,7 +23,7 @@ INTER_DELAY = 0.5   # seconds between tickers
 
 # GOOGLE DRIVE CONFIGURATION
 # Replace this with the ID of the folder where you want the Excel files saved
-DRIVE_FILE_ID = "https://docs.google.com/spreadsheets/d/1Its-SSgeQQ1zNIKHm3VTx8hCRW2SBkKpLYR1IC3l4Tw"
+DRIVE_FILE_ID = "1Its-SSgeQQ1zNIKHm3VTx8hCRW2SBkKpLYR1IC3l4Tw"
 
 # ─────────────────────────────────────────────
 # FETCH ONE TICKER — let yfinance manage session
