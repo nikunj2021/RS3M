@@ -1,19 +1,29 @@
 """
 NSE Market Perception Report
-Requires: pip install yfinance pandas xlsxwriter
+Requires: pip install yfinance pandas xlsxwriter google-api-python-client google-auth
 """
 import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-import warnings, time, os
+import warnings, time, os, json
+
+# Google API Imports
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+
 warnings.filterwarnings('ignore')
 
 # ─────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────
-file_path = "StockList/micro250list.csv"
+file_path   = "StockList/micro250list.csv"
 INTER_DELAY = 0.5   # seconds between tickers
+
+# GOOGLE DRIVE CONFIGURATION
+# Replace this with the ID of the folder where you want the Excel files saved
+DRIVE_FILE_ID = "https://docs.google.com/spreadsheets/d/1Its-SSgeQQ1zNIKHm3VTx8hCRW2SBkKpLYR1IC3l4Tw"
 
 # ─────────────────────────────────────────────
 # FETCH ONE TICKER — let yfinance manage session
@@ -22,7 +32,7 @@ def fetch_ticker(symbol, start, end, max_retries=3):
     """Returns pd.Series of Close prices or None."""
     for attempt in range(max_retries):
         try:
-            t    = yf.Ticker(symbol)          # NO session= param
+            t    = yf.Ticker(symbol)          
             hist = t.history(start=start, end=end,
                              interval='1d', auto_adjust=True,
                              raise_errors=False)
@@ -54,9 +64,21 @@ tickers     = [t for t in tickers if 'DUMMYALCAR' not in t]
 tickers     = list(dict.fromkeys(tickers))
 
 # ─────────────────────────────────────────────
-# 2. DATE RANGE
+# 2. DATE RANGE & TIME TRAVEL TOGGLE
 # ─────────────────────────────────────────────
-end_date   = datetime.now()
+IST = ZoneInfo("Asia/Kolkata")
+
+USE_BACK_DATE = False  
+BACK_DATE_STR = "2026-07-24 16:00" 
+
+if USE_BACK_DATE:
+    current_eval_time = datetime.strptime(BACK_DATE_STR, "%Y-%m-%d %H:%M").replace(tzinfo=IST)
+    print(f"\n⚠️ WARNING: RUNNING IN HISTORICAL MODE")
+    print(f"⚠️ Simulated execution time: {current_eval_time}\n")
+else:
+    current_eval_time = datetime.now(IST)
+
+end_date   = current_eval_time + timedelta(days=1)
 start_date = end_date - timedelta(days=450)
 
 # ─────────────────────────────────────────────
@@ -98,7 +120,6 @@ if failed_pass1:
             failed_pass2.append(symbol)
         time.sleep(1.5)
 
-    # ── PASS 3 ────────────────────────────────
     if failed_pass2:
         print(f"\nPass 3: Final attempt for {len(failed_pass2)} after 60s cooldown...")
         time.sleep(60)
@@ -126,14 +147,16 @@ if failed_pass1:
 data = pd.DataFrame(data_dict)
 data.sort_index(inplace=True)
 
+# Forward-fill missing prices 
+data.ffill(inplace=True)
+
 valid_tickers = list(data.columns)
 print(f"\nProceeding with {len(valid_tickers)} valid tickers out of {len(tickers)} requested.\n")
 
 # ─────────────────────────────────────────────
 # 6. WEEKLY LOGIC (strict Friday)
 # ─────────────────────────────────────────────
-IST       = ZoneInfo("Asia/Kolkata")
-now_ist   = datetime.now(IST)
+now_ist   = current_eval_time 
 nse_close = now_ist.replace(hour=15, minute=30, second=0, microsecond=0)
 
 weekly_all = data.resample('W-FRI').last()
@@ -285,3 +308,47 @@ print(f"\nSuccessfully generated: {output_file}")
 print(f"   All Stocks:         {len(df_master)}")
 print(f"   Consistent RS>=80:  {len(df_consistent)}")
 print(f"   Recent 2-wk RS>=80: {len(df_recent)}")
+
+# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# 10. UPDATE EXISTING GOOGLE DRIVE FILE
+# ─────────────────────────────────────────────
+def update_drive_file(local_path, file_id):
+    creds_json_str = os.environ.get("GCP_CREDENTIALS")
+    if not creds_json_str:
+        print("\n⚠️ No GCP_CREDENTIALS found in environment variables. Skipping Drive upload.")
+        return
+
+    try:
+        # Load credentials
+        creds_dict = json.loads(creds_json_str)
+        creds = service_account.Credentials.from_service_account_info(
+            creds_dict, 
+            scopes=['https://www.googleapis.com/auth/drive.file']
+        )
+        
+        # Build Drive Service
+        service = build('drive', 'v3', credentials=creds)
+
+        # Prepare the file media
+        media = MediaFileUpload(
+            local_path, 
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+            resumable=True
+        )
+
+        print(f"\nUpdating existing file on Google Drive (ID: {file_id})...")
+        
+        # Directly update the file by its ID
+        service.files().update(
+            fileId=file_id,
+            media_body=media
+        ).execute()
+        
+        print(f"✅ Successfully updated the file on Google Drive!")
+
+    except Exception as e:
+        print(f"\n❌ Error updating Google Drive file: {e}")
+
+# Call the update function using the ID defined in Configuration
+update_drive_file(output_file, DRIVE_FILE_ID)
