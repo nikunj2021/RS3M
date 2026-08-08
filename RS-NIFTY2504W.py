@@ -68,8 +68,8 @@ tickers     = list(dict.fromkeys(tickers))
 # ─────────────────────────────────────────────
 IST = ZoneInfo("Asia/Kolkata")
 
-USE_BACK_DATE = False  
-BACK_DATE_STR = "2026-07-24 16:00" 
+USE_BACK_DATE = True  
+BACK_DATE_STR = "2026-07-18 16:00" 
 
 if USE_BACK_DATE:
     current_eval_time = datetime.strptime(BACK_DATE_STR, "%Y-%m-%d %H:%M").replace(tzinfo=IST)
