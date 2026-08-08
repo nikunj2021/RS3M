@@ -5,6 +5,10 @@ on:
     - cron: '37 2 * * 6'
   workflow_dispatch:
 
+# ADD THIS BLOCK TO GRANT PUSH ACCESS
+permissions:
+  contents: write
+
 jobs:
   run-report:
     runs-on: ubuntu-latest
