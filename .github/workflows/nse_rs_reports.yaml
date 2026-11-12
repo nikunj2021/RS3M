@@ -1,0 +1,63 @@
+workflow_content = """name: NSE Market Perception Reports
+
+on:
+  schedule:
+    # Runs every Friday at 10:30 UTC (4:00 PM IST, 30 mins after NSE close)
+    - cron: '30 10 * * 5'
+  workflow_dispatch:
+    inputs:
+      index_selection:
+        description: 'Select which index to run (or all in parallel)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - nifty50
+          - nifty500
+          - micro250
+
+jobs:
+  generate-reports:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [nifty50, nifty500, micro250]
+
+    # Skip matrix branches that don't match manual selection (unless 'all' or scheduled run)
+    if: ${{ github.event_name == 'schedule' || inputs.index_selection == 'all' || inputs.index_selection == matrix.index }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas xlsxwriter google-api-python-client google-auth
+
+      - name: Run RS Report Generator (${{ matrix.index }})
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          python rs_report_generator.py --index ${{ matrix.index }}
+
+      - name: Upload Excel Report as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rs-report-${{ matrix.index }}
+          path: Report/RSReport/*.xlsx
+          if-no-files-found: ignore
+          retention-days: 14
+"""
+
+with open("nse_rs_reports.yml", "w") as f:
+    f.write(workflow_content)
