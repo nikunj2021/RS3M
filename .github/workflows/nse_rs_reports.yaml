@@ -1,4 +1,4 @@
-workflow_content = """name: NSE Market Perception Reports
+name: NSE Market Perception Reports
 
 on:
   schedule:
@@ -36,7 +36,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Install dependencies
         run: |
@@ -57,7 +56,3 @@ jobs:
           path: Report/RSReport/*.xlsx
           if-no-files-found: ignore
           retention-days: 14
-"""
-
-with open("nse_rs_reports.yml", "w") as f:
-    f.write(workflow_content)
